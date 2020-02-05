@@ -19,9 +19,13 @@ int main()
     switch(choice)
     {
     case 1:
-        account.createNew();
-        account.createNew();
-        account.createNew();
+        //account.CreateNew();
+        //account.CreateNew();
+        //account.CreateNew();
+        //account.SearchByName("patrycja");
+        account.PrintAccount();
+        account = Account::SearchAccountByName("patrycja");
+        account.PrintAccount();
         break;
     default:
         cout << "Fault" << endl;

@@ -7,15 +7,17 @@ class Account
 private:
     string fileToWriteData;
     string name;
-    int accountNumber;
+    int number;
     float saldo;
 
 public:
     Account(const string& file);
-    void createNew();
+    void CreateNew();
     void editExisting();
     void Delete();
-    Account searchByName(string nameToSearch);
+    void PrintAccount();
+    static Account& SearchAccountByName(string nameToSearch);
+    void SearchByName(string nameToSearch);
     makeMoneyTransfer(float money, string name);
     addMoney(float money);
     getMoney(float money);

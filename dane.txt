@@ -1,10 +1,12 @@
-Name: Anna
-Saldo: 1000
-Name: Pati
-Saldo: 1000
-Name: Ania
-Saldo: 1
-Name: Pati
-Saldo: 2
-Name: Krzysiek
-Saldo: 0
+anna
+1
+6252
+patrycja
+2
+7888
+kasia
+8
+2222
+basia
+4
+222
