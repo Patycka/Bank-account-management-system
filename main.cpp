@@ -6,6 +6,7 @@ using namespace std;
 int main()
 {
     int choice = 0;
+    int line = 0;
 
     Account account("dane.txt");
 
@@ -23,9 +24,12 @@ int main()
         //account.CreateNew();
         //account.CreateNew();
         //account.SearchByName("patrycja");
-        account.PrintAccount();
-        account = Account::SearchAccountByName("patrycja");
-        account.PrintAccount();
+        //account.PrintAccount();
+        //line = account.SearchByName("patrycja");
+        //account = Account::SearchAccountByName("patrycja");
+        //account.PrintAccount();
+        //cout << "Numer linii " << line << endl;
+        account.EditName("patrycja");
         break;
     default:
         cout << "Fault" << endl;
