@@ -1,6 +1,8 @@
 #include <iostream>
 #include "account.hpp"
 #include <fstream>
+#include <algorithm>
+#include <sqlite3.h>
 
 using namespace std;
 
@@ -12,34 +14,45 @@ Account::Account(const string &file)
 
 void Account::PrintAccount()
 {
-    cout << "Name: " << this-> name << endl;
-    cout << "Number: " << this->number << endl;
-    cout << "Saldo: " << this->saldo << endl;
+    cout << "Name: " << this->clientData.name << endl;
+    cout << "Number: " << this->clientData.number << endl;
+    cout << "Saldo: " << this->clientData.saldo << endl;
 }
 
 void Account::CreateNew()
 {
-    cout << "Name: ";
-    getline(cin, this->name);
-    cout << "Account number: ";
-    cin >> this->number;
-    cout << "Saldo: ";
-    cin >> this->saldo;
-    cin.ignore();
+//    cout << "Name: ";
+//    getline(cin, this->clientData.name);
+//    cout << "Account number: ";
+//    cin >> this->clientData.number;
+//    cout << "Saldo: ";
+//    cin >> this->clientData.saldo;
+//    cin.ignore();
 
+    vector <int> dane;
+    dane.push_back(10);
+
+    cout << dane[0] << endl;
+
+//    this->clientStructVect.push_back(this->clientData);
+//
     ofstream file;
     file.open((char *)fileToWriteData.c_str(), std::ios_base::app); //append instead of overwrite
     if (file.is_open())
     {
-        file << this->name << endl;
-        file << this->saldo << endl;
-        file << this->number << endl;
+        file << dane[0] << endl;
+//        file << this->clientStructVect[number].name << endl;
+//        file << this->clientStructVect[number].saldo << endl;
+//        file << this->clientStructVect[number].number << endl;
+
         file.close();
     }
     else
     {
         cout << "Problem with file" << endl;
     }
+
+    number++;
 }
 
 int Account::SearchByName(string nameToSearch)
@@ -59,16 +72,20 @@ int Account::SearchByName(string nameToSearch)
             line_number++;
             getline(file, line);
 
+            //open connection to SQLite database
+            //rc = sqlite3_open("test.db", &db);
 
+            //find_if() takes a predicate, and returns the first position where the predicates returns true
 
-            if (line.find(nameToSearch, 0) != string::npos)
+        //const auto p = std::find_if( clientStructVect.begin(), clientStructVect.end(),
+        //                             [nameToSearch] ( const ClientData& a ) { return a.name == nameToSearch ; } ) ;
             {
-                cout << "Found " << nameToSearch << endl;
-                this->name = nameToSearch;
-                file >> this->saldo;
-                file >> this->number;
-                this->PrintAccount();
-                return line_number;
+                //cout << "Found " << nameToSearch << endl;
+//                this->clientData.name = nameToSearch;
+//                file >> this->clientData.saldo;
+//                file >> this->clientData.number;
+//                this->PrintAccount();
+//                return line_number;
             }
         }
     }
@@ -123,5 +140,3 @@ void Account::Delete()
 {
 
 }
-
-

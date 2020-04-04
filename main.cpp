@@ -20,8 +20,8 @@ int main()
     switch(choice)
     {
     case 1:
-        //account.CreateNew();
-        //account.CreateNew();
+        account.CreateNew();
+        account.CreateNew();
         //account.CreateNew();
         //account.SearchByName("patrycja");
         //account.PrintAccount();
@@ -29,7 +29,7 @@ int main()
         //account = Account::SearchAccountByName("patrycja");
         //account.PrintAccount();
         //cout << "Numer linii " << line << endl;
-        account.EditName("patrycja");
+        //.EditName("patrycja");
         break;
     default:
         cout << "Fault" << endl;
