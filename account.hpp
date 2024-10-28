@@ -6,24 +6,15 @@ using namespace std;
 class Account
 {
 private:
-    struct ClientData
-    {
-        string name;
-        int number;
-        float saldo;
-    };
-
-    ClientData clientData;
-    int number;
-
-    vector <ClientData> clientStructVect;
+    std::string m_accountNumber;
+    std::string m_accountHolderName;
+    double m_balance;
 
 public:
-    void CreateNew();
-    void Delete();
-    void PrintAccount();
-    void DepositMoney(float money);
-    void WithdrawMoney(float money);
+    Account(std::string m_accountNumber, std::string m_accountHolderName);
+    friend std::ostream& operator<<(std::ostream& os, const Account& account);
+    void DepositMoney(double money);
+    void WithdrawMoney(double money);
 
 };
 
