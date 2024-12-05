@@ -17,8 +17,3 @@ public:
     void WithdrawMoney(double money);
 
 };
-
-
-
-
-
