@@ -6,6 +6,7 @@
 
 #include "customer_dao.hpp"
 #include "scope_guard.hpp"
+#include "account.hpp"
 
 int main()
 {
@@ -67,4 +68,11 @@ int main()
 
   std::cout << "Managed to delete customer.\n";
   return EXIT_SUCCESS;
+
+  Account account {"01234", "John Doe"};
+  cout << account;
+  account.WithdrawMoney(100.59);
+  cout << account;
+  account.DepositMoney(1000);
+  cout << account;
 }
