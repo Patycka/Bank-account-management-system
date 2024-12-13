@@ -4,7 +4,7 @@
 #include <Poco/Data/Session.h>
 #include <Poco/Data/SessionFactory.h>
 
-#include "customer_dao.hpp"
+#include "account_dao.hpp"
 #include "scope_guard.hpp"
 #include "account.hpp"
 
@@ -12,7 +12,7 @@ int main()
 {
   Poco::Data::MySQL::Connector::registerConnector();
   const std::string connectionString{
-    "host=127.0.0.1;user=root;password=Patrycja1234;db=cpp_db;compress=true;auto-"
+    "host=127.0.0.1;user=root;password=Patrycja1234;db=accountdb;compress=true;auto-"
     "reconnect="
     "true"};
   Poco::Data::Session session{Poco::Data::SessionFactory::instance().create(
@@ -33,46 +33,39 @@ int main()
     session.close();
   })};
 
-  db::CustomerDAO             customerDAO{session};
-  std::optional<db::Customer> optionalCustomer{
-    customerDAO.createCustomer("Peter Smith")};
+  db::AccountDAO accountDAO{session};
+  // std::optional<db::Account> optionalAccount{
+  //   accountDAO.CreateAccount("Anna Smith")};
 
-  if (!optionalCustomer.has_value()) {
-    std::cerr << "Couldn't create Peter Smith!\n";
-    return EXIT_FAILURE;
-  }
+  // if (!optionalAccount.has_value()) {
+  //   std::cerr << "Couldn't create Anna Smith!\n";
+    //return EXIT_FAILURE;
+  //}
 
-  db::Customer& customer{*optionalCustomer};
-  std::cout << "Successfully created \"" << customer << "\"!\n";
+  // db::Account& account{*optionalAccount};
+  // std::cout << "Successfully created \"" << account << "\"!\n";
 
-  if (!customerDAO.updateCustomer(customer, "John Smith")) {
-    std::cerr << "Couldn't update customer name.\n";
-    return EXIT_FAILURE;
-  }
+  // if (!accountDAO.updateAccount(account, "John Smith")) {
+  //   std::cerr << "Couldn't update Account name.\n";
+  //   return EXIT_FAILURE;
+  // }
 
-  std::cout << "Successfully updated customer to \"" << customer << "\"!\n";
+  // std::cout << "Successfully updated Account to \"" << account << "\"!\n";
 
-  std::optional<db::Customer> optional{customerDAO.readCustomer(1)};
+  std::optional<db::Account> optional{accountDAO.ReadAccount("1234")};
 
   if (!optional.has_value()) {
-    std::cerr << "Couldn't find customer with ID 1\n";
+    std::cerr << "Couldn't find client with account number 1234 \n";
     return EXIT_FAILURE;
   }
 
-  std::cout << "read \"" << *optional << "\" from the database.\n";
+  // std::cout << "read \"" << *optional << "\" from the database.\n";
 
-  if (!customerDAO.deleteCustomer(customer)) {
-    std::cerr << "Couldn't delete customer.\n";
-    return EXIT_FAILURE;
-  }
+  // if (!accountDAO.DeleteAccount(account)) {
+  //   std::cerr << "Couldn't delete customer.\n";
+  //   return EXIT_FAILURE;
+  // }
 
-  std::cout << "Managed to delete customer.\n";
+  // std::cout << "Managed to delete customer.\n";
   return EXIT_SUCCESS;
-
-  Account account {"01234", "John Doe"};
-  cout << account;
-  account.WithdrawMoney(100.59);
-  cout << account;
-  account.DepositMoney(1000);
-  cout << account;
 }
