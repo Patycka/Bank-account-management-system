@@ -34,16 +34,16 @@ int main()
   })};
 
   db::AccountDAO accountDAO{session};
-  // std::optional<db::Account> optionalAccount{
-  //   accountDAO.CreateAccount("Anna Smith")};
+  std::optional<db::Account> optionalAccount{
+    accountDAO.CreateAccount("Anna Smith")};
 
-  // if (!optionalAccount.has_value()) {
-  //   std::cerr << "Couldn't create Anna Smith!\n";
-    //return EXIT_FAILURE;
-  //}
+  if (!optionalAccount.has_value()) {
+    std::cerr << "Couldn't create Anna Smith!\n";
+    return EXIT_FAILURE;
+  }
 
-  // db::Account& account{*optionalAccount};
-  // std::cout << "Successfully created \"" << account << "\"!\n";
+  db::Account& account{*optionalAccount};
+  std::cout << "Successfully created \"" << account << "\"!\n";
 
   // if (!accountDAO.updateAccount(account, "John Smith")) {
   //   std::cerr << "Couldn't update Account name.\n";

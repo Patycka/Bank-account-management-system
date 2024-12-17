@@ -6,8 +6,11 @@
 namespace db {
 std::ostream& operator<<(std::ostream& os, const Account& account)
 {
-  return os << "Account{"
-            << "number: " << account.m_accountNumber << ", name: " << account.m_accountHolderName << "}";
+  os << "Account number: " << account.m_accountNumber << '\n';
+  os << "Account holder name: " << account.m_accountHolderName << '\n';
+  os << "Balance: " << account.m_balance << '\n';
+
+  return os;
 }
 
 Account::Account(std::string accountNumber, std::string name)
@@ -27,17 +30,4 @@ void Account::WithdrawMoney(double money)
 
 } // namespace db
 
-// Account::Account(std::string m_accountNumber, std::string m_accountHolderName)
-// : m_accountNumber{m_accountNumber}, m_accountHolderName{m_accountHolderName}, m_balance{0}
-// {
-// }
-
-// std::ostream& operator<<(std::ostream& os, const Account& account)
-// {
-//     os << "Account number: " << account.m_accountNumber << endl;
-//     os << "Account holder name: " << account.m_accountHolderName << endl;
-//     os << "Balance: " << account.m_balance << endl;
-
-//     return os;
-// }
 

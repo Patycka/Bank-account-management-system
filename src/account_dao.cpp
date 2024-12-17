@@ -15,11 +15,8 @@ std::optional<Account> AccountDAO::CreateAccount(std::string name)
     std::string number = "120390248924809284022482"; // @todo write generator for account number
     Account account{number, std::move(name)}; // check move description
     Poco::Data::Statement insertStatement{m_session};
-    
-    //insertStatement << "INSERT INTO Account (account_number, holder_name, balance) VALUES(:account_number, :holder_name, :balance) " , 
-    //use(account.m_accountNumber, "account_number"), 
-    //use(account.m_accountHolderName, "holder_name"), use(account.m_balance, "balance");
-    insertStatement << "INSERT INTO clients VALUES (?, ?, ?)", use(account.m_accountNumber), use(account.m_accountHolderName), use(account.m_balance); 
+
+    insertStatement << "INSERT INTO clients VALUES (?, ?, ?)", use(account.m_accountNumber), use(account.m_accountHolderName), use(account.m_balance);
     const std::size_t rowsAffected{insertStatement.execute()};
     std::cerr << "Try!\n";
 
@@ -36,6 +33,7 @@ std::optional<Account> AccountDAO::CreateAccount(std::string name)
     return account;
   }
   catch ([[maybe_unused]] const Poco::Exception& exception) {
+    std::cout << exception.message() << std::endl; 
     return std::nullopt;
   }
 }
