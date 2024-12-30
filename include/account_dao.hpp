@@ -6,7 +6,7 @@
 #include "account.hpp"
 
 namespace db {
-class AccountDAO {
+class AccountDAO { //deals with database (Database Access Object)
 public:
   explicit AccountDAO(Poco::Data::Session& session);
 
@@ -14,7 +14,9 @@ public:
 
   std::optional<Account> ReadAccount(std::string number);
 
-  bool save(Account& account);
+  void ReadAllAccounts();
+
+  bool Save(Account& account);
 
   bool DeleteAccount(Account& account);
 

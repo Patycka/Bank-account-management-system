@@ -8,6 +8,33 @@
 #include "scope_guard.hpp"
 #include "account.hpp"
 
+enum class Options : int
+{
+  CREATE_ACCOUNT = 1,
+  DEPOSIT_MONEY,
+  WITHDRAW_MONEY,
+  READ_ACCOUNT,
+  UPDATE_ACCOUNT,
+  DELETE_ACCOUNT
+};
+
+std::istream& operator>>(std::istream& is, Options& options)
+{
+  int buffer{0};
+  is >> buffer;
+  if (!is) {
+    return is;
+  }
+  if (buffer < 1 || buffer > 6) {
+    is.setstate(std::ios_base::failbit);
+    return is;
+}
+
+options = static_cast<Options>(buffer);
+return is;
+}
+
+
 int main()
 {
   Poco::Data::MySQL::Connector::registerConnector();
@@ -33,17 +60,76 @@ int main()
     session.close();
   })};
 
-  db::AccountDAO accountDAO{session};
-  std::optional<db::Account> optionalAccount{
-    accountDAO.CreateAccount("Anna Smith")};
+  Options option;
 
-  if (!optionalAccount.has_value()) {
-    std::cerr << "Couldn't create Anna Smith!\n";
-    return EXIT_FAILURE;
+  std::cout << "Choose one of the option" << std::endl;
+  std::cout << "1. Create Account" << std::endl;
+  std::cout << "2. Deposit Money" << std::endl;
+  std::cout << "3. Withdraw Money" << std::endl;
+  std::cout << "4. Read Account" << std::endl;
+  std::cout << "5. Update Account" << std::endl;
+  std::cout << "6. Delete Account" << std::endl;
+  std::cin >> option;
+
+  db::AccountDAO accountDAO{session};
+
+  switch (option)
+  {
+    case Options::CREATE_ACCOUNT:
+    {
+      std::cout << "Create" << std::endl;
+      
+      std::optional<db::Account> optionalAccount{
+        accountDAO.CreateAccount("Anna Smith")};
+
+      if (!optionalAccount.has_value()) {
+        std::cerr << "Couldn't create Anna Smith!\n";
+        return EXIT_FAILURE;
+      }
+
+      db::Account& account{*optionalAccount};
+      std::cout << "Successfully created \"" << account << "\"!\n";
+      break;
+    }
+    case Options::DEPOSIT_MONEY:
+    {
+
+      break;
+    }
+    case Options::WITHDRAW_MONEY:
+    {
+      break;
+    }
+    case Options::READ_ACCOUNT:
+    {
+      std::optional<db::Account> optional{accountDAO.ReadAccount("1234")};
+
+      if (!optional.has_value()) {
+        std::cerr << "Couldn't find client with account number 1234 \n";
+        return EXIT_FAILURE;
+      }
+      break;
+    }
+    case Options::UPDATE_ACCOUNT:
+    {
+      break;
+    }
+    case Options::DELETE_ACCOUNT:
+    {
+      break;
+    }
+    
+  
+  
+  default:
+    break;
   }
 
-  db::Account& account{*optionalAccount};
-  std::cout << "Successfully created \"" << account << "\"!\n";
+
+
+  //accountDAO.ReadAllAccounts();
+
+  //std::optional<db::Account> optional{accountDAO.DepositMoney("1234", 1000)};
 
   // if (!accountDAO.updateAccount(account, "John Smith")) {
   //   std::cerr << "Couldn't update Account name.\n";
@@ -52,12 +138,13 @@ int main()
 
   // std::cout << "Successfully updated Account to \"" << account << "\"!\n";
 
-  std::optional<db::Account> optional{accountDAO.ReadAccount("1234")};
+  // db::AccountDAO accountDAO{session};
+  // std::optional<db::Account> optional{accountDAO.ReadAccount("1234")};
 
-  if (!optional.has_value()) {
-    std::cerr << "Couldn't find client with account number 1234 \n";
-    return EXIT_FAILURE;
-  }
+  // if (!optional.has_value()) {
+  //   std::cerr << "Couldn't find client with account number 1234 \n";
+  //   return EXIT_FAILURE;
+  // }
 
   // std::cout << "read \"" << *optional << "\" from the database.\n";
 

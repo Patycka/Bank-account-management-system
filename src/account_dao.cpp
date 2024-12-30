@@ -13,7 +13,7 @@ std::optional<Account> AccountDAO::CreateAccount(std::string name)
 {
   try {
     std::string number = "120390248924809284022482"; // @todo write generator for account number
-    Account account{number, std::move(name)}; // check move description
+    Account account{number, std::move(name), *this}; // check move description
     Poco::Data::Statement insertStatement{m_session};
 
     insertStatement << "INSERT INTO clients VALUES (?, ?, ?)", use(account.m_accountNumber), use(account.m_accountHolderName), use(account.m_balance);
@@ -54,10 +54,33 @@ std::optional<Account> AccountDAO::ReadAccount(std::string number)
       return std::nullopt;
     }
 
-    return Account{number, std::move(holder_name)};
+    return Account{number, std::move(holder_name), *this};
   }
   catch ([[maybe_unused]] const Poco::Exception& exception) {
     return std::nullopt;
+  }
+}
+
+bool AccountDAO::Save(Account& account)
+{
+  try {
+    Poco::Data::Statement updateStatement{m_session};
+    updateStatement << "UPDATE clients SET holder_name = ?, balance = ? WHERE account_number=?", use(account.m_accountHolderName), 
+    use(account.m_balance), use(account.m_accountNumber);
+    const std::size_t rowsAffected{updateStatement.execute()};
+
+    if (rowsAffected == 0) {
+      return false;
+    }
+
+    if (!updateStatement.done()) {
+      return false;
+    }
+
+    return true;
+  }
+  catch ([[maybe_unused]] const Poco::Exception& exception) {
+    return false;
   }
 }
 
@@ -110,9 +133,72 @@ bool AccountDAO::DeleteAccount(Account& account)
   }
 }
 
-// std::uint64_t AccountDAO::nextId()
+// std::optional<Account> AccountDAO::DepositMoney(std::string number, double amount)
 // {
-//   static std::atomic<std::uint64_t> id{1};
-//   return id++;
+//   try {
+//     Poco::Data::Statement updateStatement{m_session};
+//     updateStatement << "UPDATE clients SET balance=balance+? WHERE account_number=?", use(amount), use(number);
+//     const std::size_t rowsAffected{updateStatement.execute()};
+
+//     if (rowsAffected == 0) {
+//       return std::nullopt;
+//     }
+
+//     if (!updateStatement.done()) {
+//       return std::nullopt;
+//     }
+
+//     return ReadAccount(number);
+//   }
+//   catch ([[maybe_unused]] const Poco::Exception& exception) {
+//     return std::nullopt;
+//   }
 // }
+
+// std::optional<Account> AccountDAO::WithdrawMoney(std::string number, double amount)
+// {
+//   try {
+//     Poco::Data::Statement updateStatement{m_session};
+//     updateStatement << "UPDATE clients SET balance=balance-? WHERE account_number=?", use(amount), use(number);
+//     const std::size_t rowsAffected{updateStatement.execute()};
+
+//     if (rowsAffected == 0) {
+//       return std::nullopt;
+//     }
+
+//     if (!updateStatement.done()) {
+//       return std::nullopt;
+//     }
+
+//     return ReadAccount(number);
+//   }
+//   catch ([[maybe_unused]] const Poco::Exception& exception) {
+//     return std::nullopt;
+//   }
+// }
+
+void AccountDAO::ReadAllAccounts()
+{
+  try {
+    Poco::Data::Statement selectStatement{m_session};
+    std::string           number{};
+    std::string           holder_name{};
+    double                balance{};
+    selectStatement << "SELECT * FROM clients", into(number), into(holder_name), into(balance);
+    const std::size_t rowsAffected{selectStatement.execute()};
+
+    if (rowsAffected == 0) {
+      //return std::nullopt;
+    }
+
+    if (!selectStatement.done()) {
+      //return std::nullopt;
+    }
+
+    //return Account{number, std::move(holder_name), balance};
+  }
+  catch ([[maybe_unused]] const Poco::Exception& exception) {
+    //return std::nullopt;
+  }
+}
 } // namespace db
