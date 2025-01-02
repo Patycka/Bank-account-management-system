@@ -38,12 +38,13 @@ std::optional<Account> AccountDAO::CreateAccount(std::string name)
   }
 }
 
-std::optional<Account> AccountDAO::ReadAccount(std::string number)
+std::optional<Account> AccountDAO::ReadAccountByNumber(std::string number)
 {
   try {
     Poco::Data::Statement selectStatement{m_session};
     std::string           holder_name{};
-    selectStatement << "SELECT holder_name FROM clients WHERE account_number=?", into(holder_name), use(number);
+    double                balance{};
+    selectStatement << "SELECT holder_name, balance FROM clients WHERE account_number=?", into(holder_name), into(balance), use(number);
     const std::size_t rowsAffected{selectStatement.execute()};
 
     if (rowsAffected == 0) {
@@ -54,7 +55,31 @@ std::optional<Account> AccountDAO::ReadAccount(std::string number)
       return std::nullopt;
     }
 
-    return Account{number, std::move(holder_name), *this};
+    return Account{number, std::move(holder_name), *this, balance};
+  }
+  catch ([[maybe_unused]] const Poco::Exception& exception) {
+    return std::nullopt;
+  }
+}
+
+std::optional<Account> AccountDAO::ReadAccountByName(std::string holderName)
+{
+  try {
+    Poco::Data::Statement selectStatement{m_session};
+    std::string           number{};
+    double                balance{};
+    selectStatement << "SELECT account_number, balance FROM clients WHERE holder_name=?", into(number), into(balance), use(holderName);
+    const std::size_t rowsAffected{selectStatement.execute()};
+
+    if (rowsAffected == 0) {
+      return std::nullopt;
+    }
+
+    if (!selectStatement.done()) {
+      return std::nullopt;
+    }
+
+    return Account{number, std::move(holderName), *this, balance};
   }
   catch ([[maybe_unused]] const Poco::Exception& exception) {
     return std::nullopt;

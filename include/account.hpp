@@ -23,7 +23,7 @@ public:
   void AddTransaction(std::string transaction);
 
 private:
-  Account(std::string number, std::string name, AccountDAO &accountDao);
+  Account(std::string number, std::string name, AccountDAO &accountDao, double balance = 0);
 
   std::string m_accountNumber;
   std::string   m_accountHolderName;

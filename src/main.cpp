@@ -77,13 +77,19 @@ int main()
   {
     case Options::CREATE_ACCOUNT:
     {
-      std::cout << "Create" << std::endl;
+      std::string name;
+      std::string surname;
+
+      std::cout << "Enter name: ";
+      std::cin >> name;
+      std::cout << "Enter surname: ";
+      std::cin >> surname;
       
       std::optional<db::Account> optionalAccount{
-        accountDAO.CreateAccount("Anna Smith")};
+        accountDAO.CreateAccount(name + " " + surname)};
 
       if (!optionalAccount.has_value()) {
-        std::cerr << "Couldn't create Anna Smith!\n";
+        std::cerr << "Couldn't create new user!\n";
         return EXIT_FAILURE;
       }
 
@@ -93,6 +99,26 @@ int main()
     }
     case Options::DEPOSIT_MONEY:
     {
+      std::string name;
+      std::string surname;
+
+      std::cout << "Enter holder name: ";
+      std::cin >> name;
+      std::cout << "Enter surname: ";
+      std::cin >> surname;
+
+      std::optional<db::Account> optional{accountDAO.ReadAccountByName(name + " " + surname)};
+      if (!optional.has_value()) {
+        std::cerr << "Couldn't find client with name " << name << "\n";
+        return EXIT_FAILURE;
+      }
+
+      double amount;
+
+      std::cout << "Enter amount: ";
+      std::cin >> amount;
+  
+      optional.value().DepositMoney(amount);
 
       break;
     }
@@ -102,7 +128,7 @@ int main()
     }
     case Options::READ_ACCOUNT:
     {
-      std::optional<db::Account> optional{accountDAO.ReadAccount("1234")};
+      std::optional<db::Account> optional{accountDAO.ReadAccountByNumber("1234")};
 
       if (!optional.has_value()) {
         std::cerr << "Couldn't find client with account number 1234 \n";

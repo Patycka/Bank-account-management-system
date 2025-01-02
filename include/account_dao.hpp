@@ -12,7 +12,8 @@ public:
 
   std::optional<Account> CreateAccount(std::string name);
 
-  std::optional<Account> ReadAccount(std::string number);
+  std::optional<Account> ReadAccountByNumber(std::string number);
+  std::optional<Account> ReadAccountByName(std::string holderName);
 
   void ReadAllAccounts();
 
