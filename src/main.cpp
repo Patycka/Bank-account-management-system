@@ -196,7 +196,56 @@ int main()
     }
     case Options::DELETE_ACCOUNT:
     {
-      break;
+      int option;
+      std::cout << "Choose read option 1 (by number), 2 (by name)" << std::endl;
+      std::cin >> option;
+
+      if (option == 1)
+      {
+        std::string number;
+        std::cout << "Enter account number: ";
+        std::cin >> number;
+
+        std::optional<db::Account> optional{accountDAO.ReadAccountByNumber(number)};
+
+        if (!optional.has_value())
+        {
+          std::cerr << "Couldn't find client with account number " << number << "\n";
+          return EXIT_FAILURE;
+        }
+        else
+        {
+          accountDAO.DeleteAccount(*optional);
+          cout << "Account deleted\n";
+        }
+      }
+      else if (option == 2)
+      {
+        std::string name;
+        std::string surname;
+
+        std::cout << "Enter holder name: ";
+        std::cin >> name;
+        std::cout << "Enter surname: ";
+        std::cin >> surname;
+
+        std::optional<db::Account> optional{accountDAO.ReadAccountByName(name + " " + surname)};
+
+        if (!optional.has_value()) {
+          std::cerr << "Couldn't find client with name " << name + " " + surname << "\n";
+          return EXIT_FAILURE;
+        }
+        else
+        {
+          accountDAO.DeleteAccount(*optional);
+          cout << "Account deleted\n";
+        }
+      }
+      else
+      {
+        std::cerr << "Wrong option\n";
+        return EXIT_FAILURE;
+      }
     }
     
   
