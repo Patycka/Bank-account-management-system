@@ -4,7 +4,7 @@
 // Represents individual transactions.
 ////////////////////////////////////////////////////////////////////////
 
-class Transaction : public Account
+class Transaction : public db::Account
 {
 private:
     std::string transactionId;

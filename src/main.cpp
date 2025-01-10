@@ -79,14 +79,18 @@ int main()
     {
       std::string name;
       std::string surname;
+      std::string type;
 
       std::cout << "Enter name: ";
       std::cin >> name;
       std::cout << "Enter surname: ";
       std::cin >> surname;
+      std::cout << "Enter account type: ";
+      std::cin >> type;
       
       std::optional<db::Account> optionalAccount{
-        accountDAO.CreateAccount(name + " " + surname)};
+        accountDAO.CreateAccount(name + " " + surname, type)};
+
 
       if (!optionalAccount.has_value()) {
         std::cerr << "Couldn't create new user!\n";
@@ -107,9 +111,10 @@ int main()
       std::cout << "Enter surname: ";
       std::cin >> surname;
 
-      std::optional<db::Account> optional{accountDAO.ReadAccountByName(name + " " + surname)};
-      if (!optional.has_value()) {
-        std::cerr << "Couldn't find client with name " << name << "\n";
+      std::unique_ptr<db::Account> optional = accountDAO.ReadAccountByName(name + " " + surname);
+
+      if (!optional) {
+        std::cerr << "Couldn't find client with name " << name + " " + surname << "\n";
         return EXIT_FAILURE;
       }
 
@@ -118,7 +123,7 @@ int main()
       std::cout << "Enter amount: ";
       std::cin >> amount;
   
-      optional.value().DepositMoney(amount);
+      optional.get()->DepositMoney(amount);
 
       break;
     }
@@ -132,9 +137,10 @@ int main()
       std::cout << "Enter surname: ";
       std::cin >> surname;
 
-      std::optional<db::Account> optional{accountDAO.ReadAccountByName(name + " " + surname)};
-      if (!optional.has_value()) {
-        std::cerr << "Couldn't find client with name " << name << "\n";
+      std::unique_ptr<db::Account> optional = accountDAO.ReadAccountByName(name + " " + surname);
+
+      if (!optional) {
+        std::cerr << "Couldn't find client with name " << name + " " + surname << "\n";
         return EXIT_FAILURE;
       }
 
@@ -143,7 +149,7 @@ int main()
       std::cout << "Enter amount: ";
       std::cin >> amount;
   
-      optional.value().WithdrawMoney(amount);
+      optional.get()->WithdrawMoney(amount);
       break;
     }
     case Options::READ_ACCOUNT:
@@ -158,10 +164,10 @@ int main()
         std::cout << "Enter account number: ";
         std::cin >> number;
 
-        std::optional<db::Account> optional{accountDAO.ReadAccountByNumber(number)};
+        std::unique_ptr<db::Account> optional{accountDAO.ReadAccountByNumber(number)};
 
-        if (!optional.has_value()) {
-          std::cerr << "Couldn't find client with account number " << number << "\n";
+        if (!optional) {
+          std::cerr << "Couldn't find client with number " << number << "\n";
           return EXIT_FAILURE;
         }
       }
@@ -175,9 +181,9 @@ int main()
         std::cout << "Enter surname: ";
         std::cin >> surname;
 
-        std::optional<db::Account> optional{accountDAO.ReadAccountByName(name + " " + surname)};
+        std::unique_ptr<db::Account> optional{accountDAO.ReadAccountByName(name + " " + surname)};
 
-        if (!optional.has_value()) {
+        if (!optional) {
           std::cerr << "Couldn't find client with name " << name + " " + surname << "\n";
           return EXIT_FAILURE;
         }
@@ -190,98 +196,132 @@ int main()
 
       break;
     }
-    case Options::UPDATE_ACCOUNT:
-    {
-      break;
-    }
-    case Options::DELETE_ACCOUNT:
-    {
-      int option;
-      std::cout << "Choose read option 1 (by number), 2 (by name)" << std::endl;
-      std::cin >> option;
+    // case Options::UPDATE_ACCOUNT:
+    // {
+    //   int option;
+    //   std::cout << "Choose read option 1 (by number), 2 (by name)" << std::endl;
+    //   std::cin >> option;
 
-      if (option == 1)
-      {
-        std::string number;
-        std::cout << "Enter account number: ";
-        std::cin >> number;
+    //   if (option == 1)
+    //   {
+    //     std::string number;
+    //     std::cout << "Enter account number: ";
+    //     std::cin >> number;
 
-        std::optional<db::Account> optional{accountDAO.ReadAccountByNumber(number)};
+    //     std::optional<db::Account> optional{accountDAO.ReadAccountByNumber(number)};
 
-        if (!optional.has_value())
-        {
-          std::cerr << "Couldn't find client with account number " << number << "\n";
-          return EXIT_FAILURE;
-        }
-        else
-        {
-          accountDAO.DeleteAccount(*optional);
-          cout << "Account deleted\n";
-        }
-      }
-      else if (option == 2)
-      {
-        std::string name;
-        std::string surname;
+    //     if (!optional.has_value())
+    //     {
+    //       std::cerr << "Couldn't find client with account number " << number << "\n";
+    //       return EXIT_FAILURE;
+    //     }
+    //     else
+    //     {
+    //       std::string newName;
+    //       std::string surname;
 
-        std::cout << "Enter holder name: ";
-        std::cin >> name;
-        std::cout << "Enter surname: ";
-        std::cin >> surname;
+    //       std::cout << "Enter new name: ";
+    //       std::cin >> newName;
+    //       std::cout << "Enter new surname: ";
+    //       std::cin >> surname;
 
-        std::optional<db::Account> optional{accountDAO.ReadAccountByName(name + " " + surname)};
+    //       accountDAO.UpdateAccount(*optional, newName + " " + surname);
+    //     }
+    //   }
+    //   else if (option == 2)
+    //   {
+    //     std::string name;
+    //     std::string surname;
 
-        if (!optional.has_value()) {
-          std::cerr << "Couldn't find client with name " << name + " " + surname << "\n";
-          return EXIT_FAILURE;
-        }
-        else
-        {
-          accountDAO.DeleteAccount(*optional);
-          cout << "Account deleted\n";
-        }
-      }
-      else
-      {
-        std::cerr << "Wrong option\n";
-        return EXIT_FAILURE;
-      }
-    }
+    //     std::cout << "Enter holder name: ";
+    //     std::cin >> name;
+    //     std::cout << "Enter surname: ";
+    //     std::cin >> surname;
+
+    //     std::optional<db::Account> optional{accountDAO.ReadAccountByName(name + " " + surname)};
+
+    //     if (!optional.has_value()) {
+    //       std::cerr << "Couldn't find client with name " << name + " " + surname << "\n";
+    //       return EXIT_FAILURE;
+    //     }
+    //     else
+    //     {
+    //       std::string newName;
+    //       std::string surname;
+
+    //       std::cout << "Enter new name: ";
+    //       std::cin >> newName;
+    //       std::cout << "Enter new surname: ";
+    //       std::cin >> surname;
+
+    //       accountDAO.UpdateAccount(*optional, newName + " " + surname);
+    //     }
+    //   }
+    //   else
+    //   {
+    //     std::cerr << "Wrong option\n";
+    //     return EXIT_FAILURE;
+    //   }
+    //   break;
+    // }
+    // case Options::DELETE_ACCOUNT:
+    // {
+    //   int option;
+    //   std::cout << "Choose read option 1 (by number), 2 (by name)" << std::endl;
+    //   std::cin >> option;
+
+    //   if (option == 1)
+    //   {
+    //     std::string number;
+    //     std::cout << "Enter account number: ";
+    //     std::cin >> number;
+
+    //     std::optional<db::Account> optional{accountDAO.ReadAccountByNumber(number)};
+
+    //     if (!optional.has_value())
+    //     {
+    //       std::cerr << "Couldn't find client with account number " << number << "\n";
+    //       return EXIT_FAILURE;
+    //     }
+    //     else
+    //     {
+    //       accountDAO.DeleteAccount(*optional);
+    //       std::cout << "Account deleted\n";
+    //     }
+    //   }
+    //   else if (option == 2)
+    //   {
+    //     std::string name;
+    //     std::string surname;
+
+    //     std::cout << "Enter holder name: ";
+    //     std::cin >> name;
+    //     std::cout << "Enter surname: ";
+    //     std::cin >> surname;
+
+    //     std::optional<db::Account> optional{accountDAO.ReadAccountByName(name + " " + surname)};
+
+    //     if (!optional.has_value()) {
+    //       std::cerr << "Couldn't find client with name " << name + " " + surname << "\n";
+    //       return EXIT_FAILURE;
+    //     }
+    //     else
+    //     {
+    //       accountDAO.DeleteAccount(*optional);
+    //       std::cout << "Account deleted\n";
+    //     }
+    //   }
+    //   else
+    //   {
+    //     std::cerr << "Wrong option\n";
+    //     return EXIT_FAILURE;
+    //   }
+    // }
     
-  
-  
   default:
     break;
   }
 
-
-
-  //accountDAO.ReadAllAccounts();
-
-  //std::optional<db::Account> optional{accountDAO.DepositMoney("1234", 1000)};
-
-  // if (!accountDAO.updateAccount(account, "John Smith")) {
-  //   std::cerr << "Couldn't update Account name.\n";
-  //   return EXIT_FAILURE;
-  // }
-
-  // std::cout << "Successfully updated Account to \"" << account << "\"!\n";
-
-  // db::AccountDAO accountDAO{session};
-  // std::optional<db::Account> optional{accountDAO.ReadAccount("1234")};
-
-  // if (!optional.has_value()) {
-  //   std::cerr << "Couldn't find client with account number 1234 \n";
-  //   return EXIT_FAILURE;
-  // }
-
-  // std::cout << "read \"" << *optional << "\" from the database.\n";
-
-  // if (!accountDAO.DeleteAccount(account)) {
-  //   std::cerr << "Couldn't delete customer.\n";
-  //   return EXIT_FAILURE;
-  // }
-
-  // std::cout << "Managed to delete customer.\n";
+ 
   return EXIT_SUCCESS;
 }

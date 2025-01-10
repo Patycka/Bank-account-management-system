@@ -14,21 +14,23 @@ class AccountDAO;
 class Account {
 public:
   friend class AccountDAO;
+  Account(std::string number, std::string name, AccountDAO &accountDao, double balance = 0);
+
+  virtual ~Account() = default;
 
   friend std::ostream& operator<<(std::ostream& os, const Account& customer);
   void DepositMoney(double amount);
-  void WithdrawMoney(double amount);
+  virtual void WithdrawMoney(double amount);
   void ViewBalance();
   void ViewTransactionHistory();
   void AddTransaction(std::string transaction);
-
+protected:
+  double m_balance;
 private:
-  Account(std::string number, std::string name, AccountDAO &accountDao, double balance = 0);
-
   std::string m_accountNumber;
   std::string   m_accountHolderName;
-  double m_balance;
   std::string transactionHistory;
+  std::string m_type;
   AccountDAO *m_accountDAO; // if reference then account is non copyable
 };
 } // namespace db

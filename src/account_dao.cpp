@@ -1,6 +1,8 @@
 #include <atomic>
 
 #include "account_dao.hpp"
+#include "checking_account.hpp"
+#include "savings_account.hpp"
 
 namespace db {
 using namespace Poco::Data::Keywords;
@@ -9,14 +11,19 @@ AccountDAO::AccountDAO(Poco::Data::Session& session) : m_session{session}
 {
 }
 
-std::optional<Account> AccountDAO::CreateAccount(std::string name)
+std::optional<Account> AccountDAO::CreateAccount(std::string name, std::string type)
 {
   try {
     std::string number = "120390248924809284022482"; // @todo write generator for account number
     Account account{number, std::move(name), *this}; // check move description
     Poco::Data::Statement insertStatement{m_session};
 
-    insertStatement << "INSERT INTO clients VALUES (?, ?, ?)", use(account.m_accountNumber), use(account.m_accountHolderName), use(account.m_balance);
+    insertStatement << "INSERT INTO clients VALUES (?, ?, ?, ?)", 
+                    use(account.m_accountNumber),
+                    use(account.m_accountHolderName),
+                    use(account.m_balance),
+                    use(account.m_type);
+
     const std::size_t rowsAffected{insertStatement.execute()};
     std::cerr << "Try!\n";
 
@@ -38,13 +45,33 @@ std::optional<Account> AccountDAO::CreateAccount(std::string name)
   }
 }
 
-std::optional<Account> AccountDAO::ReadAccountByNumber(std::string number)
+
+std::unique_ptr<Account> AccountDAO::CreateAccountObject(std::string type, std::string number, std::string name, double interestRate, double balance) 
+{
+  if (type == "checking") {
+       return std::make_unique<CheckingAccount>(number, name, *this, interestRate);
+  } 
+  else if (type == "savings") {
+    return std::make_unique<SavingsAccount>(number, name, *this, interestRate);
+  }
+  else if (type == "Default") {
+    return std::make_unique<Account>(number, name, *this, balance);
+  }
+  else {
+    throw std::runtime_error{"Invalid type: " + type + "!"};
+  }
+}
+
+
+std::optional<Account> AccountDAO::CheckAccountType(std::string type)
 {
   try {
     Poco::Data::Statement selectStatement{m_session};
-    std::string           holderName{};
+    std::string           number{};
+    std::string           holder_name{};
     double                balance{};
-    selectStatement << "SELECT holder_name, balance FROM clients WHERE account_number=?", into(holderName), into(balance), use(number), range(0, 1);
+    std::string           account_type{};
+    selectStatement << "SELECT * FROM clients WHERE type=?", into(number), into(holder_name), into(balance), into(account_type), use(type), range(0, 1);
     const std::size_t rowsAffected{selectStatement.execute()};
 
     if (rowsAffected == 0) {
@@ -54,32 +81,33 @@ std::optional<Account> AccountDAO::ReadAccountByNumber(std::string number)
     while (!selectStatement.done())
     {
         selectStatement.execute();
-        std::cout << "Number " << number << " Name " << holderName << " Balance " << balance << std::endl;
     }
 
-    std::cout << "Number " << number << " Name " << holderName << " Balance " << balance << std::endl;
-    return Account{number, std::move(holderName), *this, balance};
+    
+    return Account{number, std::move(holder_name), *this, balance};
   }
   catch ([[maybe_unused]] const Poco::Exception& exception) {
     return std::nullopt;
   }
 }
 
-std::optional<Account> AccountDAO::ReadAccountByName(std::string holderName)
+std::unique_ptr<Account> AccountDAO::ReadAccountByNumber(std::string number)
 {
   try {
     Poco::Data::Statement selectStatement{m_session};
-    std::string           number{};
+    std::string           holderName{};
     double                balance{};
-    selectStatement << "SELECT account_number, balance FROM clients WHERE holder_name=?", 
-                      into(number), 
-                      into(balance), 
-                      use(holderName),
-                      range(0, 1);
+    std::string           type{};
+    selectStatement << "SELECT holder_name, balance, account_type FROM clients WHERE account_number=?", 
+                        into(holderName), 
+                        into(balance),
+                        into(type),
+                        use(number), 
+                        range(0, 1);
     const std::size_t rowsAffected{selectStatement.execute()};
 
     if (rowsAffected == 0) {
-      return std::nullopt;
+      //return std::nullopt;
     }
 
     while (!selectStatement.done())
@@ -89,10 +117,43 @@ std::optional<Account> AccountDAO::ReadAccountByName(std::string holderName)
     }
 
     std::cout << "Number " << number << " Name " << holderName << " Balance " << balance << std::endl;
-    return Account{number, std::move(holderName), *this, balance};
+    return CreateAccountObject(type, number, holderName, 0, balance);
   }
   catch ([[maybe_unused]] const Poco::Exception& exception) {
-    return std::nullopt;
+    //return std::nullopt;
+  }
+}
+
+std::unique_ptr<Account> AccountDAO::ReadAccountByName(std::string holderName)
+{
+  try {
+    Poco::Data::Statement selectStatement{m_session};
+    std::string           number{};
+    double                balance{};
+    std::string           type{};
+    selectStatement << "SELECT account_number, balance, account_type FROM clients WHERE holder_name=?", 
+                      into(number), 
+                      into(balance),
+                      into(type),
+                      use(holderName),
+                      range(0, 1);
+    const std::size_t rowsAffected{selectStatement.execute()};
+
+    if (rowsAffected == 0) {
+      //return std::nullopt;
+    }
+
+    while (!selectStatement.done())
+    {
+        selectStatement.execute();
+        std::cout << "Number " << number << " Name " << holderName << " Balance " << balance << " Type " << type << std::endl;
+    }
+
+    std::cout << "Number " << number << " Name " << holderName << " Balance " << balance << std::endl;
+    return CreateAccountObject(type, number, holderName, 0, balance);
+  }
+  catch ([[maybe_unused]] const Poco::Exception& exception) {
+    //return std::nullopt;
   }
 }
 
@@ -119,29 +180,29 @@ bool AccountDAO::Save(Account& account)
   }
 }
 
-// bool AccountDAO::UpdateAccount(Account& Account, std::string newName)
-// {
-//   try {
-//     Poco::Data::Statement updateStatement{m_session};
-//     updateStatement << "UPDATE Account SET name=? WHERE id=?", use(newName),
-//       use(Account.m_id);
-//     const std::size_t rowsAffected{updateStatement.execute()};
+bool AccountDAO::UpdateAccount(Account& Account, std::string newName)
+{
+  try {
+    Poco::Data::Statement updateStatement{m_session};
+    updateStatement << "UPDATE clients SET holder_name=? WHERE id=?", use(newName),
+      use(Account.m_accountHolderName);
+    const std::size_t rowsAffected{updateStatement.execute()};
 
-//     if (rowsAffected == 0) {
-//       return false;
-//     }
+    if (rowsAffected == 0) {
+      return false;
+    }
 
-//     if (!updateStatement.done()) {
-//       return false;
-//     }
+    if (!updateStatement.done()) {
+      return false;
+    }
 
-//     Account.m_name = std::move(newName);
-//     return true;
-//   }
-//   catch ([[maybe_unused]] const Poco::Exception& exception) {
-//     return false;
-//   }
-// }
+    Account.m_accountHolderName = std::move(newName);
+    return true;
+  }
+  catch ([[maybe_unused]] const Poco::Exception& exception) {
+    return false;
+  }
+}
 
 bool AccountDAO::DeleteAccount(Account& account)
 {
@@ -212,28 +273,4 @@ bool AccountDAO::DeleteAccount(Account& account)
 //   }
 // }
 
-void AccountDAO::ReadAllAccounts()
-{
-  try {
-    Poco::Data::Statement selectStatement{m_session};
-    std::string           number{};
-    std::string           holder_name{};
-    double                balance{};
-    selectStatement << "SELECT * FROM clients", into(number), into(holder_name), into(balance);
-    const std::size_t rowsAffected{selectStatement.execute()};
-
-    if (rowsAffected == 0) {
-      //return std::nullopt;
-    }
-
-    if (!selectStatement.done()) {
-      //return std::nullopt;
-    }
-
-    //return Account{number, std::move(holder_name), balance};
-  }
-  catch ([[maybe_unused]] const Poco::Exception& exception) {
-    //return std::nullopt;
-  }
-}
 } // namespace db

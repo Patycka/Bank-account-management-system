@@ -1,12 +1,14 @@
 #include <account.hpp>
+#include "account_dao.hpp"
 
 ////////////////////////////////////////////////////////////////////////
 // A basic account with fewer restrictions on withdrawals
 ////////////////////////////////////////////////////////////////////////
 
-class CheckingAccount : public Account 
+class CheckingAccount : public db::Account 
 {
 public:
-    CheckingAccount(std::string number, std::string name, double interestRate);
-    void OverrideWithdraw(); // To allow unlimited transactions or to check for overdrafts (if overdraft protection is needed).
+    CheckingAccount(std::string number, std::string name, db::AccountDAO &accountDao, double interestRate);
+    //CheckingAccount(std::string number, std::string name, double interestRate);
+    void WithdrawMoney(double amount) override; // To allow unlimited transactions or to check for overdrafts (if overdraft protection is needed).
 };
