@@ -14,8 +14,8 @@ std::ostream& operator<<(std::ostream& os, const Account& account)
   return os;
 }
 
-Account::Account(std::string accountNumber, std::string name, AccountDAO &accountDao, double balance)
-  : m_accountNumber{accountNumber}, m_accountHolderName{std::move(name)}, m_balance {balance}, m_accountDAO {&accountDao}
+Account::Account(std::string accountNumber, std::string name, AccountDAO &accountDao, double balance, double interesetRate)
+  : m_accountNumber{accountNumber}, m_accountHolderName{std::move(name)}, m_balance {balance}, m_accountDAO {&accountDao}, m_interestRate{interesetRate}
 {
 }
 

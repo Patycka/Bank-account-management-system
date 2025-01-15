@@ -14,7 +14,7 @@ class AccountDAO;
 class Account {
 public:
   friend class AccountDAO;
-  Account(std::string number, std::string name, AccountDAO &accountDao, double balance = 0);
+  Account(std::string number, std::string name, AccountDAO &accountDao, double balance = 0, double interestRate = 0);
 
   virtual ~Account() = default;
 
@@ -26,6 +26,7 @@ public:
   void AddTransaction(std::string transaction);
 protected:
   double m_balance;
+  double m_interestRate;
 private:
   std::string m_accountNumber;
   std::string   m_accountHolderName;

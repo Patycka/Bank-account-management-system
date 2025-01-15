@@ -10,7 +10,7 @@ class AccountDAO { //deals with database (Database Access Object)
 public:
   explicit AccountDAO(Poco::Data::Session& session);
 
-  std::optional<Account> CreateAccount(std::string name, std::string type);
+  std::unique_ptr<Account> CreateAccount(std::string name, std::string type);
   std::unique_ptr<Account> CreateAccountObject(std::string type, std::string number, std::string name, double interestRate, double balance);
 
   std::unique_ptr<Account> ReadAccountByNumber(std::string number);

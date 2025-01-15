@@ -11,37 +11,39 @@ AccountDAO::AccountDAO(Poco::Data::Session& session) : m_session{session}
 {
 }
 
-std::optional<Account> AccountDAO::CreateAccount(std::string name, std::string type)
+std::unique_ptr<Account> AccountDAO::CreateAccount(std::string name, std::string type)
 {
   try {
     std::string number = "120390248924809284022482"; // @todo write generator for account number
-    Account account{number, std::move(name), *this}; // check move description
+    std::unique_ptr<Account> account = CreateAccountObject(type, number, name, 0, 0);
+    //Account account{number, std::move(name), *this}; // check move description
     Poco::Data::Statement insertStatement{m_session};
 
-    insertStatement << "INSERT INTO clients VALUES (?, ?, ?, ?)", 
-                    use(account.m_accountNumber),
-                    use(account.m_accountHolderName),
-                    use(account.m_balance),
-                    use(account.m_type);
+    insertStatement << "INSERT INTO clients VALUES (?, ?, ?, ?, ?)", 
+                    use(account->m_accountNumber),
+                    use(account->m_accountHolderName),
+                    use(account->m_balance),
+                    use(account->m_type),
+                    use(account->m_interestRate);
 
     const std::size_t rowsAffected{insertStatement.execute()};
     std::cerr << "Try!\n";
 
     if (rowsAffected == 0) {
       std::cerr << "rowsAffected == 0!\n";
-      return std::nullopt;
+      return nullptr;
     }
 
     if (!insertStatement.done()) {
       std::cerr << "insertStatement.done()!\n";
-      return std::nullopt;
+      return nullptr;
     }
 
     return account;
   }
   catch ([[maybe_unused]] const Poco::Exception& exception) {
     std::cout << exception.message() << std::endl; 
-    return std::nullopt;
+    return nullptr;
   }
 }
 
@@ -107,7 +109,7 @@ std::unique_ptr<Account> AccountDAO::ReadAccountByNumber(std::string number)
     const std::size_t rowsAffected{selectStatement.execute()};
 
     if (rowsAffected == 0) {
-      //return std::nullopt;
+      return nullptr;
     }
 
     while (!selectStatement.done())
@@ -120,7 +122,7 @@ std::unique_ptr<Account> AccountDAO::ReadAccountByNumber(std::string number)
     return CreateAccountObject(type, number, holderName, 0, balance);
   }
   catch ([[maybe_unused]] const Poco::Exception& exception) {
-    //return std::nullopt;
+    return nullptr;
   }
 }
 
@@ -140,7 +142,7 @@ std::unique_ptr<Account> AccountDAO::ReadAccountByName(std::string holderName)
     const std::size_t rowsAffected{selectStatement.execute()};
 
     if (rowsAffected == 0) {
-      //return std::nullopt;
+      return nullptr;
     }
 
     while (!selectStatement.done())
@@ -153,7 +155,7 @@ std::unique_ptr<Account> AccountDAO::ReadAccountByName(std::string holderName)
     return CreateAccountObject(type, number, holderName, 0, balance);
   }
   catch ([[maybe_unused]] const Poco::Exception& exception) {
-    //return std::nullopt;
+    return nullptr;
   }
 }
 

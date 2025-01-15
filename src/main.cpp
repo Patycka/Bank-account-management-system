@@ -149,7 +149,7 @@ int main()
       std::cout << "Enter amount: ";
       std::cin >> amount;
   
-      optional.get()->WithdrawMoney(amount);
+      optional->WithdrawMoney(amount);
       break;
     }
     case Options::READ_ACCOUNT:
