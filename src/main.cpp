@@ -88,11 +88,10 @@ int main()
       std::cout << "Enter account type: ";
       std::cin >> type;
       
-      std::optional<db::Account> optionalAccount{
-        accountDAO.CreateAccount(name + " " + surname, type)};
+      std::unique_ptr<db::Account> optionalAccount{accountDAO.CreateAccount(name + " " + surname, type)};
 
 
-      if (!optionalAccount.has_value()) {
+      if (!optionalAccount) {
         std::cerr << "Couldn't create new user!\n";
         return EXIT_FAILURE;
       }

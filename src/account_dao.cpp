@@ -54,7 +54,7 @@ std::unique_ptr<Account> AccountDAO::CreateAccountObject(std::string type, std::
        return std::make_unique<CheckingAccount>(number, name, *this, interestRate);
   } 
   else if (type == "savings") {
-    return std::make_unique<SavingsAccount>(number, name, *this, interestRate);
+    return std::make_unique<SavingsAccount>(number, name, *this, interestRate, balance);
   }
   else if (type == "Default") {
     return std::make_unique<Account>(number, name, *this, balance);
