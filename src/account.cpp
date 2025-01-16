@@ -10,6 +10,8 @@ std::ostream& operator<<(std::ostream& os, const Account& account)
   os << "Account number: " << account.m_accountNumber << '\n';
   os << "Account holder name: " << account.m_accountHolderName << '\n';
   os << "Balance: " << account.m_balance << '\n';
+  os << "Account type: " << account.m_type << '\n';
+  os << "Interest rate: " << account.m_interestRate << '\n';
 
   return os;
 }

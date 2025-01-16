@@ -4,6 +4,7 @@
 CheckingAccount::CheckingAccount(std::string number, std::string name, db::AccountDAO &accountDao, double interestRate)
     : db::Account{number, name, accountDao, interestRate}
 {
+    m_type = "Checking";
 }
 
 void CheckingAccount::WithdrawMoney(double money)

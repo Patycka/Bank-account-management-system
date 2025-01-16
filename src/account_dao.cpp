@@ -2,6 +2,7 @@
 
 #include "account_dao.hpp"
 #include "checking_account.hpp"
+#include "helpers/random_digit_generator.hpp"
 #include "savings_account.hpp"
 
 namespace db {
@@ -14,9 +15,9 @@ AccountDAO::AccountDAO(Poco::Data::Session& session) : m_session{session}
 std::unique_ptr<Account> AccountDAO::CreateAccount(std::string name, std::string type)
 {
   try {
-    std::string number = "120390248924809284022482"; // @todo write generator for account number
+    int accountLength = 10;
+    std::string number = helper::GenerateRandomDigits(accountLength);
     std::unique_ptr<Account> account = CreateAccountObject(type, number, name, 0, 0);
-    //Account account{number, std::move(name), *this}; // check move description
     Poco::Data::Statement insertStatement{m_session};
 
     insertStatement << "INSERT INTO clients VALUES (?, ?, ?, ?, ?)", 
@@ -50,10 +51,10 @@ std::unique_ptr<Account> AccountDAO::CreateAccount(std::string name, std::string
 
 std::unique_ptr<Account> AccountDAO::CreateAccountObject(std::string type, std::string number, std::string name, double interestRate, double balance) 
 {
-  if (type == "checking") {
+  if (type == "Checking") {
        return std::make_unique<CheckingAccount>(number, name, *this, interestRate);
   } 
-  else if (type == "savings") {
+  else if (type == "Savings") {
     return std::make_unique<SavingsAccount>(number, name, *this, interestRate, balance);
   }
   else if (type == "Default") {

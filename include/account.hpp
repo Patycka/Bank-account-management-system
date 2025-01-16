@@ -27,11 +27,11 @@ public:
 protected:
   double m_balance;
   double m_interestRate;
+  std::string m_type = "Default";
 private:
   std::string m_accountNumber;
   std::string   m_accountHolderName;
   std::string transactionHistory;
-  std::string m_type;
   AccountDAO *m_accountDAO; // if reference then account is non copyable
 };
 } // namespace db

@@ -4,6 +4,7 @@
 SavingsAccount::SavingsAccount(std::string number, std::string name, db::AccountDAO &accountDao, double interestRate, double balance)
     : db::Account{number, name, accountDao, balance, interestRate}
 {
+    m_type = "Savings";
 }
 
 void SavingsAccount::ApplyInterest()
