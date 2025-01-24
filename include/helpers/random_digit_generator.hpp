@@ -3,7 +3,7 @@
 #include <sstream>
 
 namespace helper {
-std::string GenerateRandomDigits(int lenght)
+static std::string GenerateRandomDigits(int lenght)
 {
     srand ( (unsigned int)time(NULL) );
     std::string randomDigits;

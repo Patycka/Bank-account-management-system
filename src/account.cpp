@@ -3,6 +3,8 @@
 
 #include "account.hpp"
 #include "account_dao.hpp"
+#include "transaction.hpp"
+#include <ctime>
 
 namespace db {
 std::ostream& operator<<(std::ostream& os, const Account& account)
@@ -25,13 +27,24 @@ void Account::DepositMoney(double money)
 {
     m_balance += money;
     m_accountDAO->Save(*this);
+    // Get the current time
+    std::time_t now = std::time(nullptr);
+    char buffer[100];
+    
+    // Format the time as "YYYY-MM-DD HH:MM:SS"
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
 
+    TransactionDAO transactionDAO{m_accountDAO->GetSession()};
+    Transaction transaction = {"Deposit", money, buffer, m_accountNumber};
+    transactionDAO.InsertLog(transaction);
 }
 
 void Account::WithdrawMoney(double money)
 {
     m_balance -= money;
     m_accountDAO->Save(*this);
+
+    Transaction Transaction{"Withdraw", money, "2021-09-01", m_accountNumber};
 }
 
 } // namespace db

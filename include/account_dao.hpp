@@ -21,6 +21,7 @@ public:
 
   bool DeleteAccount(Account& account);
   bool UpdateAccount(Account& account, std::string newName);
+  Poco::Data::Session& GetSession() { return m_session; }
 
 private:
   static std::uint64_t nextId();
