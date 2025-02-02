@@ -187,7 +187,7 @@ bool AccountDAO::UpdateAccount(Account& Account, std::string newName)
 {
   try {
     Poco::Data::Statement updateStatement{m_session};
-    updateStatement << "UPDATE clients SET holder_name=? WHERE id=?", use(newName),
+    updateStatement << "UPDATE clients SET holder_name=? WHERE holder_name=?", use(newName),
       use(Account.m_accountHolderName);
     const std::size_t rowsAffected{updateStatement.execute()};
 
