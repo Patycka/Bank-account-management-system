@@ -24,6 +24,7 @@ public:
   void ViewBalance();
   void ViewTransactionHistory();
   void AddTransaction(std::string transaction);
+  std::string GetAccountNumber() const;
 protected:
   double m_balance;
   double m_interestRate;

@@ -5,6 +5,7 @@
 #include <string>
 #include <account.hpp>
 #include <Poco/Data/Session.h>
+#include <vector>
 
 ////////////////////////////////////////////////////////////////////////
 // Represents individual transactions.
@@ -21,14 +22,14 @@ private:
     std::string accountNumber;    
 public:
     Transaction(std::string transactionType, double amount, std::string date, std::string accountNumber);
-    void GetTransaction(int transactionId);
 };
 
 class TransactionDAO
 {
 public:
     explicit TransactionDAO(Poco::Data::Session& session);
-    void InsertLog(Transaction& transaction);
+    void InsertLog(const Transaction& transaction);
+    static std::vector<Transaction> GetTransactions(std::string accountNumber, Poco::Data::Session& session);
 private:
     Poco::Data::Session& m_session;
 

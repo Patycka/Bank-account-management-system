@@ -7,6 +7,7 @@
 #include "account_dao.hpp"
 #include "scope_guard.hpp"
 #include "account.hpp"
+#include "transaction.hpp"
 
 enum class Options : int
 {
@@ -15,8 +16,11 @@ enum class Options : int
   WITHDRAW_MONEY,
   READ_ACCOUNT,
   UPDATE_ACCOUNT,
-  DELETE_ACCOUNT
+  DELETE_ACCOUNT,
+  SHOW_TRANSACTIONS
 };
+
+const int OPTIONS_COUNT{7};
 
 std::istream& operator>>(std::istream& is, Options& options)
 {
@@ -25,7 +29,7 @@ std::istream& operator>>(std::istream& is, Options& options)
   if (!is) {
     return is;
   }
-  if (buffer < 1 || buffer > 6) {
+  if (buffer < 1 || buffer > OPTIONS_COUNT) {
     is.setstate(std::ios_base::failbit);
     return is;
 }
@@ -33,7 +37,6 @@ std::istream& operator>>(std::istream& is, Options& options)
 options = static_cast<Options>(buffer);
 return is;
 }
-
 
 int main()
 {
@@ -69,7 +72,10 @@ int main()
   std::cout << "4. Read Account" << std::endl;
   std::cout << "5. Update Account" << std::endl;
   std::cout << "6. Delete Account" << std::endl;
+  std::cout << "7. Show Transactions" << std::endl;
+  
   std::cin >> option;
+  
 
   db::AccountDAO accountDAO{session};
 
@@ -192,6 +198,28 @@ int main()
         std::cerr << "Wrong option\n";
         return EXIT_FAILURE;
       }
+
+      break;
+    }
+    case Options::SHOW_TRANSACTIONS:
+    {
+      std::string name;
+      std::string surname;
+
+      std::cout << "Enter holder name: ";
+      std::cin >> name;
+      std::cout << "Enter surname: ";
+      std::cin >> surname;
+
+      std::unique_ptr<db::Account> accountObj = accountDAO.ReadAccountByName(name + " " + surname);
+
+      if (!accountObj) {
+        std::cerr << "Couldn't find client with name " << name + " " + surname << "\n";
+        return EXIT_FAILURE;
+      }
+
+      std::string number = accountObj->GetAccountNumber();
+      auto vect = TransactionDAO::GetTransactions(number, session);
 
       break;
     }

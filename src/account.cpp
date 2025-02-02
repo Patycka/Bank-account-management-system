@@ -47,6 +47,11 @@ void Account::WithdrawMoney(double money)
     Transaction Transaction{"Withdraw", money, "2021-09-01", m_accountNumber};
 }
 
+std::string Account::GetAccountNumber() const
+{
+  return m_accountNumber;
+}
+
 } // namespace db
 
 
